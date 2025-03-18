@@ -37,11 +37,11 @@ class EmbeddingProviderSettings(BaseSettings):
     """
 
     provider_type: EmbeddingProviderType = Field(
-        default=EmbeddingProviderType.FASTEMBED,
+        default=EmbeddingProviderType.MINIMAL,
         validation_alias="EMBEDDING_PROVIDER",
     )
     model_name: str = Field(
-        default="sentence-transformers/all-MiniLM-L6-v2",
+        default="minimal",
         validation_alias="EMBEDDING_MODEL",
     )
 
