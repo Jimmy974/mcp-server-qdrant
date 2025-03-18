@@ -26,7 +26,7 @@ class MinimalEmbedProvider(EmbeddingProvider):
 
     def __init__(self, model_name: str):
         self.model_name = model_name
-        self.vector_size = 512  # Fixed size for our embeddings
+        self.vector_size = 384  # Fixed size for our embeddings
         self.vocab_size = 10000  # Maximum vocabulary size to consider
         self.ngram_ranges = [(1, 1), (2, 2), (3, 3)]  # Unigrams, bigrams, trigrams
         
