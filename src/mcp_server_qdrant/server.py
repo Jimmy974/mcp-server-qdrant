@@ -101,6 +101,7 @@ async def find(ctx: Context, query: str) -> List[str]:
     :return: A list of entries found.
     """
     await ctx.debug(f"Finding results for query {query}")
+    logger.info(f"Finding results for query {query}")
     qdrant_connector: QdrantConnector = ctx.request_context.lifespan_context[
         "qdrant_connector"
     ]
