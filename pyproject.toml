@@ -12,7 +12,8 @@ dependencies = [
     "pydantic-settings>=2.0.0",
     "python-dotenv>=1.0.0",
     "numpy>=1.24.0",
-    "langchain-huggingface",
+    "langchain-community>=0.0.16",
+    "langchain-huggingface>=0.0.2"
 ]
 
 [build-system]
