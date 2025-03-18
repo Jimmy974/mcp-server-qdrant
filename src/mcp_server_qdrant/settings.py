@@ -3,8 +3,6 @@ from typing import Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
-from mcp_server_qdrant.embeddings.types import EmbeddingProviderType
-
 DEFAULT_TOOL_STORE_DESCRIPTION = (
     "Keep the memory for later use, when you are asked to remember something."
 )
@@ -28,21 +26,6 @@ class ToolSettings(BaseSettings):
     tool_find_description: str = Field(
         default=DEFAULT_TOOL_FIND_DESCRIPTION,
         validation_alias="TOOL_FIND_DESCRIPTION",
-    )
-
-
-class EmbeddingProviderSettings(BaseSettings):
-    """
-    Configuration for the embedding provider.
-    """
-
-    provider_type: EmbeddingProviderType = Field(
-        default=EmbeddingProviderType.LANGCHAIN,
-        validation_alias="EMBEDDING_PROVIDER",
-    )
-    model_name: str = Field(
-        default="BAAI/bge-small-en-v1.5",
-        validation_alias="EMBEDDING_MODEL",
     )
 
 

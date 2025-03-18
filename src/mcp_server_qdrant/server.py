@@ -6,10 +6,9 @@ from typing import AsyncIterator, List
 from mcp.server import Server
 from mcp.server.fastmcp import Context, FastMCP
 
-from mcp_server_qdrant.embeddings.factory import create_embedding_provider
+from mcp_server_qdrant.embeddings.langchain_direct import embeddings
 from mcp_server_qdrant.qdrant import Entry, Metadata, QdrantConnector
 from mcp_server_qdrant.settings import (
-    EmbeddingProviderSettings,
     QdrantSettings,
     ToolSettings,
 )
@@ -21,26 +20,20 @@ logger = logging.getLogger(__name__)
 async def server_lifespan(server: Server) -> AsyncIterator[dict]:  # noqa
     """
     Context manager to handle the lifespan of the server.
-    This is used to configure the embedding provider and Qdrant connector.
+    This is used to configure the Qdrant connector.
     All the configuration is now loaded from the environment variables.
     Settings handle that for us.
     """
     try:
-        # Embedding provider is created with a factory function so we can add
-        # some more providers in the future. Currently, only FastEmbed is supported.
-        embedding_provider_settings = EmbeddingProviderSettings()
-        embedding_provider = create_embedding_provider(embedding_provider_settings)
-        logger.info(
-            f"Using embedding provider {embedding_provider_settings.provider_type} with "
-            f"model {embedding_provider_settings.model_name}"
-        )
+        # Use direct langchain embeddings
+        logger.info("Using LangChain embeddings directly")
 
         qdrant_configuration = QdrantSettings()
         qdrant_connector = QdrantConnector(
             qdrant_configuration.location,
             qdrant_configuration.api_key,
             qdrant_configuration.collection_name,
-            embedding_provider,
+            embeddings,
             qdrant_configuration.local_path,
         )
         logger.info(
@@ -48,7 +41,7 @@ async def server_lifespan(server: Server) -> AsyncIterator[dict]:  # noqa
         )
 
         yield {
-            "embedding_provider": embedding_provider,
+            "embedding_service": embeddings,
             "qdrant_connector": qdrant_connector,
         }
     except Exception as e:
