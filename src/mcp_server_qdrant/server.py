@@ -86,28 +86,49 @@ async def store(
 
 
 @mcp.tool(name="qdrant-find", description=tool_settings.tool_find_description)
-async def find(ctx: Context, query: str) -> List[str]:
+async def find(
+    ctx: Context, 
+    query: str, 
+    limit: int = 10, 
+    score_threshold: float = 0.7,
+    filter_metadata: Metadata = None
+) -> List[str]:
     """
     Find memories in Qdrant.
     :param ctx: The context for the request.
     :param query: The query to use for the search.
+    :param limit: Maximum number of results to return (default: 10).
+    :param score_threshold: Minimum similarity score threshold (default: 0.7).
+    :param filter_metadata: Optional metadata filter to narrow search results.
     :return: A list of entries found.
     """
-    await ctx.debug(f"Finding results for query {query}")
-    logger.info(f"Finding results for query {query}")
+    await ctx.debug(f"Finding results for query '{query}' with limit={limit}, threshold={score_threshold}")
+    logger.info(f"Finding results for query '{query}' with limit={limit}, threshold={score_threshold}")
+    
     qdrant_connector: QdrantConnector = ctx.request_context.lifespan_context[
         "qdrant_connector"
     ]
-    entries = await qdrant_connector.search(query)
+    
+    entries = await qdrant_connector.search(
+        query=query,
+        limit=limit,
+        score_threshold=score_threshold,
+        filter_metadata=filter_metadata
+    )
+    
     if not entries:
         return [f"No information found for the query '{query}'"]
+    
     content = [
         f"Results for the query '{query}'",
     ]
-    for entry in entries:
+    
+    for i, entry in enumerate(entries, 1):
         # Format the metadata as a JSON string and produce XML-like output
         entry_metadata = json.dumps(entry.metadata) if entry.metadata else ""
+        score = entry.score if hasattr(entry, 'score') else "N/A"
         content.append(
-            f"<entry><content>{entry.content}</content><metadata>{entry_metadata}</metadata></entry>"
+            f"<entry id='{i}'><score>{score}</score><content>{entry.content}</content><metadata>{entry_metadata}</metadata></entry>"
         )
+    
     return content 

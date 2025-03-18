@@ -7,10 +7,13 @@ DEFAULT_TOOL_STORE_DESCRIPTION = (
     "Keep the memory for later use, when you are asked to remember something."
 )
 DEFAULT_TOOL_FIND_DESCRIPTION = (
-    "Look up memories in Qdrant. Use this tool when you need to: \n"
-    " - Find memories by their content \n"
+    "Look up memories in Qdrant with advanced search capabilities. Use this tool when you need to: \n"
+    " - Find memories by their semantic content \n"
+    " - Filter memories by metadata \n"
+    " - Control result relevance using score threshold \n"
+    " - Limit the number of returned results \n"
     " - Access memories for further analysis \n"
-    " - Get some personal information about the user"
+    " - Get personal information about the user based on stored memories"
 )
 
 

@@ -17,6 +17,7 @@ class Entry(BaseModel):
 
     content: str
     metadata: Optional[Metadata] = None
+    score: Optional[float] = None
 
 
 class QdrantConnector:
@@ -90,11 +91,20 @@ class QdrantConnector:
             ],
         )
 
-    async def search(self, query: str) -> List[Entry]:
+    async def search(
+        self, 
+        query: str, 
+        limit: int = 10, 
+        score_threshold: float = 0.7,
+        filter_metadata: Optional[Metadata] = None
+    ) -> List[Entry]:
         """
         Find points in the Qdrant collection. If there are no entries found, an empty list is returned.
         :param query: The query to use for the search.
-        :return: A list of entries found.
+        :param limit: Maximum number of results to return (default: 10).
+        :param score_threshold: Minimum similarity score threshold (default: 0.7).
+        :param filter_metadata: Optional metadata filter to narrow search results.
+        :return: A list of entries found with their similarity scores.
         """
         collection_exists = await self._client.collection_exists(self._collection_name)
         if not collection_exists:
@@ -104,17 +114,47 @@ class QdrantConnector:
         query_vector = await self._embedding_service.embed_query(query)
         vector_name = self._embedding_service.get_vector_name()
 
-        # Search in Qdrant
+        # Create filter if metadata filter is provided
+        filter_condition = None
+        if filter_metadata:
+            filter_conditions = []
+            for key, value in filter_metadata.items():
+                if isinstance(value, list):
+                    # Handle list values with 'any' condition
+                    filter_conditions.append(
+                        models.FieldCondition(
+                            key=f"metadata.{key}",
+                            match=models.MatchAny(any=value)
+                        )
+                    )
+                else:
+                    # Handle scalar values with 'match' condition
+                    filter_conditions.append(
+                        models.FieldCondition(
+                            key=f"metadata.{key}",
+                            match=models.MatchValue(value=value)
+                        )
+                    )
+            
+            if filter_conditions:
+                filter_condition = models.Filter(
+                    must=filter_conditions
+                )
+
+        # Search in Qdrant with score_threshold and filter
         search_results = await self._client.search(
             collection_name=self._collection_name,
             query_vector=models.NamedVector(name=vector_name, vector=query_vector),
-            limit=10,
+            limit=limit,
+            score_threshold=score_threshold,
+            filter=filter_condition
         )
 
         return [
             Entry(
                 content=result.payload["document"],
                 metadata=result.payload.get("metadata"),
+                score=result.score
             )
             for result in search_results
         ] 
