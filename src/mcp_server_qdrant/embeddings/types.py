@@ -5,4 +5,5 @@ class EmbeddingProviderType(Enum):
     FASTEMBED = "fastembed"
     SENTENCE_TRANSFORMERS = "sentence-transformers"
     ALPINE = "alpine"
-    MINIMAL = "minimal" 
+    MINIMAL = "minimal"
+    LANGCHAIN = "langchain" 

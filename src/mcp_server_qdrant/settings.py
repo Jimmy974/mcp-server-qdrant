@@ -37,11 +37,11 @@ class EmbeddingProviderSettings(BaseSettings):
     """
 
     provider_type: EmbeddingProviderType = Field(
-        default=EmbeddingProviderType.MINIMAL,
+        default=EmbeddingProviderType.LANGCHAIN,
         validation_alias="EMBEDDING_PROVIDER",
     )
     model_name: str = Field(
-        default="minimal",
+        default="BAAI/bge-small-en-v1.5",
         validation_alias="EMBEDDING_MODEL",
     )
 
